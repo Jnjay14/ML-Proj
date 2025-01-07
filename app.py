@@ -77,21 +77,31 @@ def main():
             rf_pred = rf_model.predict(X_test)
             ensemble_pred = ensemble_model.predict(X_test)
 
-            # Evaluation
+            # Function to calculate accuracy
+            def calculate_accuracy(y_true, y_pred, tolerance=0.01):
+                within_tolerance = np.abs(y_true - y_pred) <= (tolerance * y_true)
+                accuracy = np.mean(within_tolerance) * 100  # Convert to percentage
+                return accuracy
+
+            # Evaluation function
             def evaluate_model(name, y_true, y_pred):
                 mse = mean_squared_error(y_true, y_pred)
                 r2 = r2_score(y_true, y_pred)
-                return mse, r2
+                accuracy = calculate_accuracy(y_true, y_pred)
+                return mse, r2, accuracy
 
-            lr_mse, lr_r2 = evaluate_model('Linear Regression', y_test, lr_pred)
-            rf_mse, rf_r2 = evaluate_model('Random Forest', y_test, rf_pred)
-            ensemble_mse, ensemble_r2 = evaluate_model('Ensemble', y_test, ensemble_pred)
+            # Evaluate models
+            lr_mse, lr_r2, lr_accuracy = evaluate_model('Linear Regression', y_test, lr_pred)
+            rf_mse, rf_r2, rf_accuracy = evaluate_model('Random Forest', y_test, rf_pred)
+            ensemble_mse, ensemble_r2, ensemble_accuracy = evaluate_model('Ensemble', y_test, ensemble_pred)
 
+            # Display performance
             st.write("### Model Performance")
             performance = pd.DataFrame({
                 'Model': ['Linear Regression', 'Random Forest', 'Ensemble'],
                 'MSE': [lr_mse, rf_mse, ensemble_mse],
-                'R2 Score': [lr_r2, rf_r2, ensemble_r2]
+                'R2 Score': [lr_r2, rf_r2, ensemble_r2],
+                'Accuracy (%)': [lr_accuracy, rf_accuracy, ensemble_accuracy]
             })
             st.dataframe(performance)
 
